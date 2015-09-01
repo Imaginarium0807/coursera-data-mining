@@ -1,3 +1,5 @@
+#!/usr/bin/python
+
 import math
 import json
 import pickle
@@ -11,6 +13,7 @@ from nltk.tokenize import sent_tokenize
 import glob
 import argparse
 import os
+from collections import Counter
 path2files="yelp_dataset_challenge_academic_dataset/"
 path2buisness=path2files+"yelp_academic_dataset_business.json"
 path2reviews=path2files+"yelp_academic_dataset_review.json"
@@ -21,6 +24,7 @@ def main(save_sample, save_categories):
     cat2rid = {}
     rest2rate={}
     rest2revID = {}
+    restid_to_name = {}
     r = 'Restaurants'
     with open (path2buisness, 'r') as f:
         for line in f.readlines():
@@ -29,8 +33,9 @@ def main(save_sample, save_categories):
             #cities.add(business_json['city'])
             if r in bjc:
                 if len(bjc) > 1:
-                    #print(bjc)
                     restaurant_ids.add(business_json['business_id'])
+                    if business_json['business_id'] not in restid_to_name.keys():
+                        restid_to_name[business_json['business_id']] = business_json['name']
                     categories = set(bjc).union(categories) - set([r])
                     stars = business_json['stars']
                     rest2rate[ business_json['business_id'] ] = stars
@@ -41,7 +46,7 @@ def main(save_sample, save_categories):
                             cat2rid[cat].append(business_json['business_id'])
                         else:
                             cat2rid[cat] = [business_json['business_id']]
-
+    
     print "saving restaurant ratings"
     with open ( 'restaurantIds2ratings.txt', 'w') as f:
         for key in rest2rate:
@@ -98,6 +103,7 @@ def main(save_sample, save_categories):
     #ensure categories is a directory
     sample_cat2reviews={}
     sample_cat2ratings={}
+    sample_cat2businessname  = {}
     num_reviews = 0
     with open (path2reviews, 'r') as f:
         for line in f.readlines():
@@ -109,16 +115,42 @@ def main(save_sample, save_categories):
                     if rcat in sample_cat2reviews:
                         sample_cat2reviews [ rcat ].append(review_json['text'])
                         sample_cat2ratings [ rcat ].append( str(review_json['stars']) )
+                        sample_cat2businessname [ rcat ].append(restid_to_name[review_json['business_id']])
                     else:
                         sample_cat2reviews [ rcat ] = [review_json['text']]
                         sample_cat2ratings [ rcat ] = [ str(review_json['stars']) ]
+                        sample_cat2businessname [ rcat ] = [restid_to_name[review_json['business_id']]]
     
     if save_categories:
         print "saving categories"
         #save categories
         for cat in sample_cat2reviews:
-            with open ('categories/' + cat.replace('/', '-').replace(" ", "_") + ".txt" , 'w') as f:
-                f.write(u'\n'.join(sample_cat2reviews[cat]).encode('utf-8').strip())
+            name_counts = Counter(sample_cat2businessname[cat])
+            catfile = open('categories/' + cat.replace('/', '-').replace(" ", "_") + ".txt" , 'w')
+            #Get unique restaurant names 
+            uniq_names = []
+            
+            for name in sample_cat2businessname[cat]:
+                if (name,name_counts[name]) not in uniq_names:
+                    uniq_names.append((name,name_counts[name]))
+            
+            for business in uniq_names:
+                #Set a total index
+                idx=0
+                #Write the name of the business
+                catfile.write('----------------------------------------------------\n')
+                catfile.write((business[0]+'\n').encode('utf-8'))
+                catfile.write('----------------------------------------------------\n')
+                #Loop over the number of lines
+                for i in range(business[1]):
+                    catfile.write((sample_cat2reviews[cat][idx]).encode('utf-8').strip()+'\n')
+                    idx+=1
+                
+
+            #f.write((u'\n%s\n' % (sample_cat2businessname[cat])).encode('utf-8').strip())
+            #f.write(u'\n'.join(sample_cat2reviews[cat]).encode('utf-8').strip())
+            
+            #print sample_cat2reviews[cat]
 
     if save_sample:  
         print "sampling restaurant reviews"
