@@ -134,16 +134,17 @@ def main(save_sample, save_categories):
                 if (name,name_counts[name]) not in uniq_names:
                     uniq_names.append((name,name_counts[name]))
             
+            tot_idx = 0
+            idx = 0
             for business in uniq_names:
                 #Set a total index
-                idx=0
+                tot_idx+=idx
+                idx = 0
                 #Write the name of the business
-                catfile.write('----------------------------------------------------\n')
-                catfile.write((business[0]+'\n').encode('utf-8'))
-                catfile.write('----------------------------------------------------\n')
+                catfile.write(('Business_Name: '+business[0]+'\n').encode('utf-8'))
                 #Loop over the number of lines
                 for i in range(business[1]):
-                    catfile.write((sample_cat2reviews[cat][idx]).encode('utf-8').strip()+'\n')
+                    catfile.write((sample_cat2reviews[cat][tot_idx+idx]).encode('utf-8').strip()+'\n')
                     idx+=1
                 
 
