@@ -12,9 +12,8 @@ def main():
         infile = re.sub('[&*+-]*','',restaurant)
         
         outfile = os.path.splitext(infile)[0]+'_topics.dat'
-        
-        subprocess.call(('python ../task1/py27_ldaTopicModeling.py -f %s -o %s' % (infile, outfile)),shell=True)
-        
+        command = 'python ../../task1/py27_ldaTopicModeling.py -f %s -o %s -K 10' % (infile, outfile)
+        subprocess.call(command,shell=True)
 
 if __name__=="__main__":
     main()
