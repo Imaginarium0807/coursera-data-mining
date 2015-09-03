@@ -23,7 +23,11 @@ def topics_to_dict(infile):
     return topics_dict
 
 def write_topics_json(topics_dict, infile):
-    
+
+    #Make colors list
+    colors = ['blue', 'red', 'orange', 'green', 'purple',
+              'black', 'gray', 'yellow', 'navyblue', 'brown']
+
     json_file = os.path.splitext(infile)[0] + '.json'
 
     topics_json = open(json_file, 'w')
@@ -40,10 +44,11 @@ def write_topics_json(topics_dict, infile):
             
             #Last topic doesn't have a comma
             if j == len(topics_dict[str(i)])-1:
-                topics_json.write('       {"name": "%s"}\n' % (topic[0]))
+                topics_json.write('       {"name": "%s", "color": "%s", "size": %f}\n' 
+                                  % (topic[0], colors[i], float(topic[1])*1000.0))
             else:    
-                topics_json.write('       {"name": "%s"},\n' % (topic[0]))
-        
+                topics_json.write('       {"name": "%s", "color": "%s", "size": %f},\n'
+                                  % (topic[0], colors[i], float(topic[1])*1000.0))
         if i == len(topics_dict.keys())-1:
             topics_json.write('      ]\n      }\n   ]\n}')
         else:
