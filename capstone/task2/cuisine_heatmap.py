@@ -2,6 +2,7 @@
 
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib as mpl
 
 def read_cuis_labels(cuis_labels_file):
 
@@ -30,10 +31,18 @@ def read_sim_matrix(cuis_sim_file):
     return sim_matrix_list
 
 def plot_heatmap(cuis_labels, sim_matrix_list):
-    
+
+    x_idx = []
+    y_idx = []
+    col = []
+
     for i in range(len(sim_matrix_list)):
         for j in range(len(sim_matrix_list[i])):
-            plt.scatter(i, j, color=str(1.0-float(sim_matrix_list[i][j])))
+            x_idx.append(str(i))
+            y_idx.append(str(j))
+            col.append(float(sim_matrix_list[i][j]))
+            
+    plt.scatter(x_idx, y_idx, cmap='Greys', c=col, marker='o', s=50, edgecolor='none')
 
     plt.xticks(range(len(cuis_labels)), cuis_labels, rotation=90)
     plt.yticks(range(len(cuis_labels)), cuis_labels)
